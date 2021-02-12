@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2017",
     "module": "commonjs",
     "lib": [
       "dom",
@@ -33,5 +33,5 @@
   "include": [
     "./src/**/*.tsx",
     "./src/**/*.ts"
-  ]
+, "ss/post.ts", "ss/constants.ts", "ss/constants.ts"  ]
 }
