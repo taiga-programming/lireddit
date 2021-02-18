@@ -1,5 +1,5 @@
 import { Arg, Ctx, Query, Resolver, Mutation } from "type-graphql";
-import { Post } from '../entities/post';
+import { Post } from '../entities/Post';
 import { MyContext } from "../types";
 
 
@@ -7,7 +7,7 @@ import { MyContext } from "../types";
 
 export class PostResolver {
   @Query(() => [Post])
-
+   
   posts(@Ctx() { em }: MyContext): Promise<Post[]> {
     return em.find(Post, {});
   }
