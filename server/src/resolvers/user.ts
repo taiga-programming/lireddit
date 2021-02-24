@@ -94,7 +94,6 @@ export class UserResolver {
           updated_at: new Date(),
         })
         .returning("*");
-        //
         user = result[0];
     } catch (err) {
       console.log(err);
@@ -117,8 +116,14 @@ export class UserResolver {
     // keep them logged in
     req.session.userId = user.id;
     
-    //confrim user
+    /*
+     // be able to confirm registred table data
+     user = result[0];
+     // be able to confirm  registred  entity data
+     user = result[1];
+    */
     console.log(user);
+
     return { user };
   }
 
