@@ -12,6 +12,11 @@ import { MyContext } from "../types";
 import { User } from "../entities/User";
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
+import { COOKIE_NAME } from "../constants";
+
+
+/* define class types */
+
 
 @InputType()
 class UsernamePasswordInput {
@@ -40,6 +45,7 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  // review later
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req, em }: MyContext) {
   
@@ -49,7 +55,7 @@ export class UserResolver {
     if (!req.session.userId) {
       return null;
     }
-
+     
     const user = await em.findOne(User, { id: req.session.userId });
     return user;
   }
@@ -127,7 +133,7 @@ export class UserResolver {
     return { user };
   }
 
-
+  
   @Mutation(() => UserResponse)
   async login(
     @Arg("options") options: UsernamePasswordInput,
@@ -160,5 +166,21 @@ export class UserResolver {
     return {
       user,
     };
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err: any) => {
+        res.clearCookie(COOKIE_NAME);
+        if (err) {
+          console.log(err);
+          resolve(false);
+          return;
+        }
+
+        resolve(true);
+      })
+    );
   }
 }
