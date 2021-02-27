@@ -20,7 +20,7 @@ const Login: React.FC<{}> = ({}) => {
 
   const router = useRouter();
 
-  const [, login] = useLoginMutation();
+  const [,login] = useLoginMutation();
 
   return (
     <Wrapper variant="small">
