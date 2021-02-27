@@ -167,23 +167,7 @@ export class UserResolver {
       user,
     };
   }
-  // @Mutation(() => Boolean)
-  // /*In the @Ctx, "export declare function Ctx(propertyName?: string): ParameterDecorator;"" */
-  // logout(@Ctx() {req, res}: MyContext) {
 
-  //     //(parameter) resolve: (value: unknown) => void
-  //     new Promise( (resolve) =>
-  //       req.session.destroy((err: any) => {
-  //       res.clearCookie(COOKIE_NAME);
-  //       if(err) {
-  //       console.log(err);
-
-  //       resolve(false);
-  //       return;
-  //       }
-  //       resolve(true)
-  //     })
-  //   );
   @Mutation(() => Boolean)
   logout(@Ctx() { req, res }: MyContext) {
     return new Promise((resolve) =>
