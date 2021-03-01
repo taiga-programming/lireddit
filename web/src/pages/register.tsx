@@ -15,34 +15,13 @@ import { useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 
 import { useRouter } from "next/router";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 
 
 interface registerProps {}
 
-
-/* conncet to database throgh graphql but not need to any more 
-
-const REGISTER_MUT = `
-mutation Register($username: String!, $password: String!){
-  register(options:{ username: $username , password:$password}) {
-    errors {
-      field
-      message
-    }
-    user {
-      id 
-      username
-    }
-  }
-}
-`;
-*/
-
 const Register: React.FC<registerProps> = ({}) => {
-
-  /* before add graphql mutations
-  const [,register] = useMutation(REGISTER_MUT);
-  */
 
   const router = useRouter();
 
@@ -63,12 +42,6 @@ const Register: React.FC<registerProps> = ({}) => {
             // console.log(response.data?.register.user);
             router.push("/");
           }
-
-          /* 
-            //confirm values whether actually working or not 
-            console.log(values);
-            register(values)
-          */
         }}
       >
         {({ isSubmitting }) => (
@@ -101,4 +74,4 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default Register;
+export default  withUrqlClient(createUrqlClient) (Register);
