@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
     "target": "es2017",
     "module": "commonjs",
     "lib": [
@@ -8,6 +10,7 @@
       "es2017",
       "esnext.asynciterable"
     ],
+
     "sourceMap": true,
     "outDir": "./dist",
     "moduleResolution": "node",
@@ -15,6 +18,8 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
+    "strict": true,
+    "alwaysStrict": false,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
