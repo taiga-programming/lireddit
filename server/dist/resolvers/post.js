@@ -1,70 +1,98 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
-const tslib_1 = require("tslib");
 const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
 let PostResolver = class PostResolver {
-    async posts() {
-        return Post_1.Post.find();
+    posts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Post_1.Post.find();
+        });
     }
     post(id) {
         return Post_1.Post.findOne(id);
     }
-    async createPost(title) {
-        return Post_1.Post.create({ title }).save();
+    createPost(title) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Post_1.Post.create({ title }).save();
+        });
     }
-    async updatePost(id, title) {
-        const post = await Post_1.Post.findOne(id);
-        if (!post) {
-            return null;
-        }
-        if (typeof title !== "undefined") {
-            await Post_1.Post.update({ id }, { title });
-        }
-        return post;
+    updatePost(id, title) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = yield Post_1.Post.findOne(id);
+            if (!post) {
+                return null;
+            }
+            if (typeof title !== "undefined") {
+                yield Post_1.Post.update({ id }, { title });
+            }
+            return post;
+        });
     }
-    async deletePost(id) {
-        await Post_1.Post.delete(id);
-        return true;
+    deletePost(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Post_1.Post.delete(id);
+            return true;
+        });
     }
 };
-tslib_1.__decorate([
+__decorate([
     type_graphql_1.Query(() => [Post_1.Post]),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", []),
-    tslib_1.__metadata("design:returntype", Promise)
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
-tslib_1.__decorate([
+__decorate([
     type_graphql_1.Query(() => Post_1.Post, { nullable: true }),
-    tslib_1.__param(0, type_graphql_1.Arg("id")),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Number]),
-    tslib_1.__metadata("design:returntype", Promise)
+    __param(0, type_graphql_1.Arg("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
-tslib_1.__decorate([
+__decorate([
     type_graphql_1.Mutation(() => Post_1.Post),
-    tslib_1.__param(0, type_graphql_1.Arg("title")),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String]),
-    tslib_1.__metadata("design:returntype", Promise)
+    __param(0, type_graphql_1.Arg("title")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
-tslib_1.__decorate([
+__decorate([
     type_graphql_1.Mutation(() => Post_1.Post, { nullable: true }),
-    tslib_1.__param(0, type_graphql_1.Arg("id")),
-    tslib_1.__param(1, type_graphql_1.Arg("title", () => String, { nullable: true })),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Number, String]),
-    tslib_1.__metadata("design:returntype", Promise)
+    __param(0, type_graphql_1.Arg("id")),
+    __param(1, type_graphql_1.Arg("title", () => String, { nullable: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "updatePost", null);
-tslib_1.__decorate([
+__decorate([
     type_graphql_1.Mutation(() => Boolean),
-    tslib_1.__param(0, type_graphql_1.Arg("id")),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Number]),
-    tslib_1.__metadata("design:returntype", Promise)
+    __param(0, type_graphql_1.Arg("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
-PostResolver = tslib_1.__decorate([
+PostResolver = __decorate([
     type_graphql_1.Resolver()
 ], PostResolver);
 exports.PostResolver = PostResolver;

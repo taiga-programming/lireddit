@@ -20,9 +20,9 @@ import { getConnection } from "typeorm";
 @ObjectType()
 class FieldError {
   @Field()
-  field: string | undefined;
+  field: string ;
   @Field()
-  message: string | undefined;
+  message: string ;
 }
 
 @ObjectType()
