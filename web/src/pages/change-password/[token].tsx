@@ -11,9 +11,10 @@ import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 
 
-const ChangePassword : NextPage<{token: string}> = ({token}) => {
+const ChangePassword : NextPage = () => {
   
   const router = useRouter();
+  // console.log(router.query);
   const [, changePassword] = useChangePasswordMutation();
   const [ tokenError, setTokenError ] = useState('');
 
@@ -24,7 +25,7 @@ const ChangePassword : NextPage<{token: string}> = ({token}) => {
       onSubmit={async (values, { setErrors }) => {
         const response = await changePassword({
           newPassword: values.newPassword,
-          token
+          token: router.query.token === 'string' ? router.query.token : "",
         });
         if(response.data?.changePassword.errors) {
           const errorMap = toErrorMap(response.data.changePassword.errors);
@@ -64,10 +65,5 @@ const ChangePassword : NextPage<{token: string}> = ({token}) => {
   );
 }
 
-ChangePassword.getInitialProps  = ({query}) => {
-  return {
-    token: query.token as string ,
-  }
-}
 //@ts-ignore
 export default withUrqlClient(createUrqlClient)(ChangePassword);
