@@ -18,7 +18,7 @@ const Login: React.FC<{}> = ({}) => {
   const router = useRouter();
 
   const [, login] = useLoginMutation();
-
+  // console.log(router);
   return (
     <Wrapper variant="small">
       <Formik
@@ -29,6 +29,9 @@ const Login: React.FC<{}> = ({}) => {
             
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
+            if(typeof router.query.next === "string") {
+              router.push(router.query.next || "/");
+            }
             //worked
             router.push("/");
           }
