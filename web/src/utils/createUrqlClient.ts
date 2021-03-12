@@ -10,8 +10,6 @@ import {
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import Router from 'next/router';
 import { pipe, tap } from "wonka";
-import { resourceLimits } from "worker_threads";
-
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
