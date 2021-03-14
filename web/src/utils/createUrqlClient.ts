@@ -1,15 +1,20 @@
-import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql";
-import { cacheExchange,  Resolver } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import {
-  LogoutMutation,
-  MeQuery,
-  MeDocument,
+  dedupExchange,
+  Exchange,
+  fetchExchange,
+  stringifyVariables,
+} from "urql";
+import { pipe, tap } from "wonka";
+import {
   LoginMutation,
+  LogoutMutation,
+  MeDocument,
+  MeQuery,
   RegisterMutation,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import Router from 'next/router';
-import { pipe, tap } from "wonka";
+import Router from "next/router";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -22,35 +27,65 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-
 const cursorPagination = (): Resolver => {
- 
+
   return (_parent, fieldArgs, cache, info) => {
+    /* export interface ResolveInfo  { 
+        parentKey: string;
+      }
+    */
     const { parentKey: entityKey, fieldName } = info;
-    // console.log(entityKey, fieldName);
+    /* export interface Cache {
+      inspectFields(entity: Data | string | null): FieldInfo[];
+    }
+    */
     const allFields = cache.inspectFields(entityKey);
-    console.log("allFields:", allFields);
-    const fieldInfos = allFields.filter(info => info.fieldName === fieldName);
+  
+    console.log("allFields: ", allFields);
+
+    /* interface ReadonlyArray<T> {
+      filter(predicate: (value: T, index: number, array: T[]) => unknown, thisArg?: any): T[];
+      }
+    */
+
+    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+
+    // length: number;
     const size = fieldInfos.length;
     if (size === 0) {
       return undefined;
     }
 
-    // console.log("fieldArgs:", fieldArgs);
-    const fieldkey = `${fieldName}(${stringifyVariables(fieldArgs)})`
-    // console.log('key we created: ',fieldkey);
-    const isItIntheCache = cache.resolveFieldByKey(entityKey,fieldkey)
-    // console.log(isItIntheCache);
-    info.partial = !isItIntheCache;
-    // console.log("this is: ", partial);
-    const results: any[] = [];
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+
+    /* export interface Cache {
+        resolve(entity: Data | string | null, fieldName: string, args?: Variables): DataField;
+      }
+    */
+
+    const isItInTheCache = cache.resolve(
+      cache.resolveFieldByKey(entityKey, fieldKey) as string,
+      "posts"
+    );
+
+    info.partial = !isItInTheCache;
+    let hasMore = true;
+    const results: string[] = [];
     fieldInfos.forEach((fi) => {
-      const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[];
+      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+      const data = cache.resolve(key, "posts") as string[];
+      const _hasMore = cache.resolve(key, "hasMore");
+      if (!_hasMore) {
+        hasMore = _hasMore as boolean;
+      }
       results.push(...data);
     });
 
-    return results;
-
+    return {
+      __typename: "PaginatedPosts",
+      hasMore,
+      posts: results,
+    };
 
     // const visited = new Set();
     // let result: NullArray<string> = [];
@@ -62,32 +97,32 @@ const cursorPagination = (): Resolver => {
     //     continue;
     //   }
 
-    //   const links = cache.resolve(entityKey, fieldKey) as string[];
+    //   const links = cache.resolveFieldByKey(entityKey, fieldKey) as string[];
     //   const currentOffset = args[cursorArgument];
 
     //   if (
     //     links === null ||
     //     links.length === 0 ||
-    //     typeof currentOffset !== 'number'
+    //     typeof currentOffset !== "number"
     //   ) {
     //     continue;
     //   }
 
-    //   const tempResult: NullArray<string> = [];
-
-    //   for (let j = 0; j < links.length; j++) {
-    //     const link = links[j];
-    //     if (visited.has(link)) continue;
-    //     tempResult.push(link);
-    //     visited.add(link);
-    //   }
-
-    //   if (
-    //     (!prevOffset || currentOffset > prevOffset) ===
-    //     (mergeMode === 'after')
-    //   ) {
-    //     result = [...result, ...tempResult];
+    //   if (!prevOffset || currentOffset > prevOffset) {
+    //     for (let j = 0; j < links.length; j++) {
+    //       const link = links[j];
+    //       if (visited.has(link)) continue;
+    //       result.push(link);
+    //       visited.add(link);
+    //     }
     //   } else {
+    //     const tempResult: NullArray<string> = [];
+    //     for (let j = 0; j < links.length; j++) {
+    //       const link = links[j];
+    //       if (visited.has(link)) continue;
+    //       tempResult.push(link);
+    //       visited.add(link);
+    //     }
     //     result = [...tempResult, ...result];
     //   }
 
@@ -106,11 +141,6 @@ const cursorPagination = (): Resolver => {
   };
 };
 
-
-
-
-
-
 export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:4000/graphql",
   fetchOptions: {
@@ -119,11 +149,14 @@ export const createUrqlClient = (ssrExchange: any) => ({
   exchanges: [
     dedupExchange,
     cacheExchange({
-        resolvers: {
-          Query: {
-            posts:  cursorPagination(),
-          }
+      keys: {
+        PaginatedPosts: () => null,
+      },
+      resolvers: {
+        Query: {
+          posts: cursorPagination(),
         },
+      },
       updates: {
         Mutation: {
           logout: (_result, args, cache, info) => {
@@ -174,7 +207,3 @@ export const createUrqlClient = (ssrExchange: any) => ({
     fetchExchange,
   ],
 });
-function partial(partial: any) {
-  throw new Error("Function not implemented.");
-}
-
