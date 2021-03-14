@@ -24,12 +24,13 @@ const main = async () => {
     username: "postgres",
     password: "postgres",
     logging: true,
-    synchronize: true,
+    synchronize: true ,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User],
   });
 
   // await Post.delete({})
+  
 
   await conn.runMigrations();
 
