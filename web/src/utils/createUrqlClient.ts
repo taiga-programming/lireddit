@@ -15,6 +15,7 @@ import {
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import Router from "next/router";
+import { FieldsOnCorrectTypeRule } from "graphql";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -159,6 +160,16 @@ export const createUrqlClient = (ssrExchange: any) => ({
       },
       updates: {
         Mutation: {
+          createPost: (_result, args, cache, info) => {
+            // console.log(cache.inspectFields('Query'));
+
+            const allFields = cache.inspectFields('Query');
+            const fieldInfos = allFields.filter((info) => info.fieldName === 'post');
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "posts", fi.arguments || undefined);
+            });
+            // console.log(cache.inspectFields('Query'));
+          },
           logout: (_result, args, cache, info) => {
             betterUpdateQuery<LogoutMutation, MeQuery>(
               cache,
