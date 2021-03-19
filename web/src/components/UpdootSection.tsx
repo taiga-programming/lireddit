@@ -2,6 +2,7 @@ import { Box, IconButton, Flex } from '@chakra-ui/core';
 import React, { useState } from 'react'
 import { PostSnippetFragment, useVoteMutation, VoteMutationVariables } from '../generated/graphql';
 
+
 interface UpdootSectionProps {
   post: PostSnippetFragment;
 }
@@ -38,8 +39,12 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
       <Box mr={4}>
       <IconButton 
         aria-label="chevron-up"
-        icon="chevron-up" 
+        icon="chevron-up"
+        variantColor={post.voteStatus === 1 ?"green" : undefined}
         onClick={async () => {
+          if(post.voteStatus === 1) {
+            return;
+          }
           setLoadingState('updoot-loading')
           await vote({
             postId: post.id,
@@ -56,8 +61,12 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
         <Box></Box>
       <IconButton  
         aria-label="chevron-down" 
-        icon="chevron-down" 
+        icon="chevron-down"
+        variantColor={post.voteStatus === -1 ?"red" : undefined}
         onClick={async () => {
+          if(post.voteStatus === -1) {
+            return;
+          }
           setLoadingState('downdoot-loading')
           await vote({
             postId: post.id,
