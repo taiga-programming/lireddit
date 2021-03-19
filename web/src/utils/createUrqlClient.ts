@@ -12,10 +12,11 @@ import {
   MeDocument,
   MeQuery,
   RegisterMutation,
+  VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import gql  from "graphql-tag";
 import Router from "next/router";
-import { FieldsOnCorrectTypeRule } from "graphql";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -31,27 +32,12 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
 const cursorPagination = (): Resolver => {
 
   return (_parent, fieldArgs, cache, info) => {
-    /* export interface ResolveInfo  { 
-        parentKey: string;
-      }
-    */
     const { parentKey: entityKey, fieldName } = info;
-    /* export interface Cache {
-      inspectFields(entity: Data | string | null): FieldInfo[];
-    }
-    */
     const allFields = cache.inspectFields(entityKey);
   
     console.log("allFields: ", allFields);
 
-    /* interface ReadonlyArray<T> {
-      filter(predicate: (value: T, index: number, array: T[]) => unknown, thisArg?: any): T[];
-      }
-    */
-
     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
-
-    // length: number;
     const size = fieldInfos.length;
     if (size === 0) {
       return undefined;
@@ -59,10 +45,6 @@ const cursorPagination = (): Resolver => {
 
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
 
-    /* export interface Cache {
-        resolve(entity: Data | string | null, fieldName: string, args?: Variables): DataField;
-      }
-    */
 
     const isItInTheCache = cache.resolve(
       cache.resolveFieldByKey(entityKey, fieldKey) as string,
@@ -160,13 +142,36 @@ export const createUrqlClient = (ssrExchange: any) => ({
       },
       updates: {
         Mutation: {
+          vote: (_result, args, cache, info) => {
+            const {postId, value} = args as VoteMutationVariables;
+            const data = cache.readFragment(
+              gql`
+                fragment _ on Post {
+                  id
+                  points
+                }
+              `,
+              { id: postId } as any
+            );
+            console.log('data', data);
+            if (data) {
+              const newPoints = (data.points as number)  + value ;
+              cache.writeFragment(
+                gql`
+                  fragment __ on Post {
+                    points
+                  }
+                `,
+                { id: postId, points: newPoints } as any 
+              );
+            }
+          },
           createPost: (_result, args, cache, info) => {
-            // console.log(cache.inspectFields('Query'));
 
             const allFields = cache.inspectFields('Query');
-            const fieldInfos = allFields.filter((info) => info.fieldName === 'post');
+            const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
             fieldInfos.forEach((fi) => {
-              cache.invalidate("Query", "posts", fi.arguments || undefined);
+              cache.invalidate("Query", "posts", fi.arguments || {});
             });
             // console.log(cache.inspectFields('Query'));
           },
