@@ -26,6 +26,7 @@ const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
+const Updoot_1 = require("../entities/Updoot");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -61,51 +62,63 @@ let PostResolver = class PostResolver {
             const isUpdoot = value !== -1;
             const realValue = isUpdoot ? 1 : -1;
             const { userId } = req.session;
-            yield typeorm_1.getConnection().query(`
-    START TRANSACTION;
+            const updoot = yield Updoot_1.Updoot.findOne({ where: { postId, userId } });
+            if (updoot && updoot.value !== realValue) {
+                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+    update updoot
+    set value = $1
+    where "postId" = $2 and "userId" = $3
+        `, [realValue, postId, userId]);
+                    yield tm.query(`
+          update post
+          set points = points + $1
+          where id = $2
+        `, [2 * realValue, postId]);
+                }));
+            }
+            else if (!updoot) {
+                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
     insert into updoot ("userId", "postId", value)
-    values (${userId},${postId},${realValue});
+    values ($1, $2, $3)
+        `, [userId, postId, realValue]);
+                    yield tm.query(`
     update post
-    set points = points + ${realValue}
-    where id = ${postId};
-    COMMIT;
-    `);
+    set points = points + $1
+    where id = $2
+      `, [realValue, postId]);
+                }));
+            }
             return true;
         });
     }
     posts(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
-            const realLimitPlusOne = realLimit + 1;
-            const replacements = [realLimitPlusOne];
+            const reaLimitPlusOne = realLimit + 1;
+            const replacements = [reaLimitPlusOne];
             if (cursor) {
                 replacements.push(new Date(parseInt(cursor)));
             }
             const posts = yield typeorm_1.getConnection().query(`
-      select p.*,
-      json_build_object(
-        'id', u.id,
-        'username', u.username,
-        'email', u.email,
-        'createdAt', u."createdAt",
-        'updatedAt', u."updatedAt"
-        ) creator
-      from post p
-      inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $2` : ""}
-      order by p."createdAt" DESC
-      limit $1
+    select p.*,
+    json_build_object(
+      'id', u.id,
+      'username', u.username,
+      'email', u.email,
+      'createdAt', u."createdAt",
+      'updatedAt', u."updatedAt"
+      ) creator
+    from post p
+    inner join public.user u on u.id = p."creatorId"
+    ${cursor ? `where p."createdAt" < $2` : ""}
+    order by p."createdAt" DESC
+    limit $1
     `, replacements);
-            console.log("this", posts);
-            const qb = typeorm_1.getConnection()
-                .getRepository(Post_1.Post)
-                .createQueryBuilder("p")
-                .innerJoinAndSelect("p.creator", "u", 'u.id = p."creatorId"')
-                .orderBy('p."createdAt"', "DESC")
-                .take(realLimitPlusOne);
             return {
                 posts: posts.slice(0, realLimit),
-                hasMore: posts.length === realLimitPlusOne,
+                hasMore: posts.length === reaLimitPlusOne,
             };
         });
     }
