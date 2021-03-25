@@ -11,7 +11,7 @@ import {
   FieldResolver,
   Root,
   ObjectType,
-  Info,
+  // Info,
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import { MyContext } from "../types";
@@ -113,10 +113,18 @@ export class PostResolver {
     const reaLimitPlusOne = realLimit + 1;
 
     const replacements: any[] = [reaLimitPlusOne];
+    
 
+    if(req.session.userId) {
+      replacements.push(req.session.userId);
+    }
+
+    let cursorIdx = 3;
 
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
+      cursorIdx = replacements.length;
+      
     }
 
     const posts = await getConnection().query(
@@ -137,7 +145,7 @@ export class PostResolver {
     }
     from post p
     inner join public.user u on u.id = p."creatorId"
-    ${cursor ? `where p."createdAt" < $3` : ""}
+    ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
     order by p."createdAt" DESC
     limit $1
     `,

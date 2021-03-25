@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import { UpdootSection } from "../components/UpdootSection";
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 15,
+    limit: 30,
     cursor: null as null | string,
   });
 
