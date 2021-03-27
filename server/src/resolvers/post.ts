@@ -18,6 +18,7 @@ import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
+import { response } from "express";
 // import { tmpdir } from "os";
 
 @InputType()
@@ -206,10 +207,33 @@ export class PostResolver {
     return post;
   }
 
+
+  // @Mutation(() => Boolean)
+  // @UseMiddleware(isAuth)
+  // async deletePost(
+  //   @Arg("id", () => Int) id: number,
+  //   @Ctx() { req }: MyContext
+
   @Mutation(() => Boolean)
-  async deletePost(@Arg("id") id: number): Promise<boolean> {
-    await Post.delete(id);
+  @UseMiddleware(isAuth)
+  async deletePost(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    // // not cascade way
+    // const post = await Post.findOne(id);
+    // // if you don't get post, return false
+    // if (!post) {
+    //   return false;
+    // }
+    // // if cratorId and userId are not same, throw not authorized
+    // if (post.creatorId !== req.session.userId) {
+    //   throw new Error("not authorized");
+    // }
+
+    // await Updoot.delete({ postId: id });
+    // await Post.delete({ id });
+    await Post.delete({ id, creatorId: req.session.userId })
     return true;
   }
 }
-
