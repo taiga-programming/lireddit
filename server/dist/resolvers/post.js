@@ -66,9 +66,9 @@ let PostResolver = class PostResolver {
             if (updoot && updoot.value !== realValue) {
                 yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
                     yield tm.query(`
-    update updoot
-    set value = $1
-    where "postId" = $2 and "userId" = $3
+      update updoot
+      set value = $1
+      where "postId" = $2 and "userId" = $3
         `, [realValue, postId, userId]);
                     yield tm.query(`
           update post

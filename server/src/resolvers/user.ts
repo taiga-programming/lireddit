@@ -7,7 +7,7 @@ import {
   ObjectType,
   Query,
   FieldResolver,
-  Root
+  Root,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { User } from "../entities/User";
@@ -22,9 +22,9 @@ import { getConnection } from "typeorm";
 @ObjectType()
 class FieldError {
   @Field()
-  field: string ;
+  field: string;
   @Field()
-  message: string ;
+  message: string;
 }
 
 @ObjectType()
@@ -38,14 +38,13 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
-
   @FieldResolver(() => String)
-   email(@Root() user: User, @Ctx() {req}:MyContext) {
-    // this is the current user 
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    // this is the current user and its ok to show them their own email
     if (req.session.userId === user.id) {
-      return user.email
+      return user.email;
     }
-    //current user wants to see someone elses email
+    // current user wants to see someone elses email
     return "";
   }
 
@@ -251,4 +250,3 @@ export class UserResolver {
     );
   }
 }
-
