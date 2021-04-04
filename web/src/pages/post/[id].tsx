@@ -19,6 +19,7 @@ const Post = ({}) => {
 
   if (error) {
     return <div>{error.message}</div>;
+    
   }
 
   if (!data?.post) {
