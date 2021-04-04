@@ -1,83 +1,53 @@
-import { Box, IconButton, Flex } from '@chakra-ui/core';
-import React, { useState } from 'react'
-import { PostSnippetFragment, useVoteMutation, VoteMutationVariables } from '../generated/graphql';
-
+import React, { useState } from "react";
+import { Flex, IconButton } from "@chakra-ui/core";
+import { PostSnippetFragment, useVoteMutation } from "../generated/graphql";
 
 interface UpdootSectionProps {
   post: PostSnippetFragment;
 }
 
-/*
-export interface UseMutationState<Data = any, Variables = object> {
-    fetching: boolean;
-    stale: boolean;
-    data?: Data;
-    error?: CombinedError;
-    extensions?: Record<string, any>;
-    operation?: Operation<Data, Variables>;
-}
-
-export interface GraphQLRequest<Data = any, Variables = object> {
-    key: number;
-    query: DocumentNode | TypedDocumentNode<Data, Variables>;
-    variables?: Variables;
-  }
-
-export type VoteMutationVariables = Exact<{
-  value: Scalars['Int'];
-  postId: Scalars['Int'];
-}>;
-*/
-
 export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
-  const [loadingState, setLoadingState] = useState<'updoot-loading'| 'downdoot-loading' | 'not-loading'>('not-loading');
-  
+  const [loadingState, setLoadingState] = useState<
+    "updoot-loading" | "downdoot-loading" | "not-loading"
+  >("not-loading");
   const [, vote] = useVoteMutation();
-  // const [{ fetching, operation }, vote] = useVoteMutation();
-  // console.log(operation?.variables?.value);
-    return (
-      <Box mr={4}>
-      <IconButton 
-        aria-label="chevron-up"
-        icon="chevron-up"
-        variantColor={post.voteStatus === 1 ?"green" : undefined}
+  return (
+    <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
+      <IconButton
         onClick={async () => {
-          if(post.voteStatus === 1) {
+          if (post.voteStatus === 1) {
             return;
           }
-          setLoadingState('updoot-loading')
+          setLoadingState("updoot-loading");
           await vote({
             postId: post.id,
-            value: 1
+            value: 1,
           });
-          setLoadingState('not-loading');
+          setLoadingState("not-loading");
         }}
+        variantColor={post.voteStatus === 1 ? "green" : undefined}
         isLoading={loadingState === "updoot-loading"}
-        // isLoading={fetching && (operation?.variables as VoteMutationVariables)?.value === 1}
-        />
-      <Flex justify="center" mt={2} mb={2} >
-        {post.points}
-        </Flex>
-        <Box></Box>
-      <IconButton  
-        aria-label="chevron-down" 
-        icon="chevron-down"
-        variantColor={post.voteStatus === -1 ?"red" : undefined}
+        aria-label="updoot post"
+        icon="chevron-up"
+      />
+      {post.points}
+      <IconButton
         onClick={async () => {
-          if(post.voteStatus === -1) {
+          if (post.voteStatus === -1) {
             return;
           }
-          setLoadingState('downdoot-loading')
+          setLoadingState("downdoot-loading");
           await vote({
             postId: post.id,
-            value: -1
+            value: -1,
           });
-          setLoadingState('not-loading');
+          setLoadingState("not-loading");
         }}
+        variantColor={post.voteStatus === -1 ? "red" : undefined}
         isLoading={loadingState === "downdoot-loading"}
-        // isLoading={fetching && (operation?.variables as VoteMutationVariables)?.value === -1}
-
+        aria-label="downdoot post"
+        icon="chevron-down"
       />
-    </Box>
-    );
-}
+    </Flex>
+  );
+};
