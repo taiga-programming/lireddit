@@ -15,6 +15,7 @@ import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import path from "path";
 import { Updoot } from "./entities/Updoot";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
   //@ts-ignore
@@ -69,7 +70,13 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ req, res, redis }),
+    context: ({ req, res }) => ({ 
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      updootLoader: createUpdootLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({
@@ -85,3 +92,7 @@ const main = async () => {
 main().catch((err) => {
   console.error(err);
 });
+function createUpdootLoader() {
+  throw new Error("Function not implemented.");
+}
+
