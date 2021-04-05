@@ -47,9 +47,7 @@ export class PostResolver {
   @FieldResolver(() => User)
   creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
 
-    if (typeof post.creatorId === 'string') {
-      return userLoader.load(post.creatorId);
-    }
+      return userLoader.load(post.creatorId as any);
   }
 
   @FieldResolver(() => Int, { nullable: true })
