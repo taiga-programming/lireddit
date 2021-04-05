@@ -43,4 +43,5 @@ export class User extends BaseEntity {
   @Field(() => String)
   @UpdateDateColumn()
   updatedAt: Date;
+  postId: any;
 }
